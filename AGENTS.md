@@ -18,6 +18,7 @@ The one source of agent rules for this repo, in every tool. `CLAUDE.md` and `GEM
 | `scripts/prose-score.mjs`, `scripts/prose-check.mjs` | The STE prose scorer and its commit gate |
 | `evals/run.py` | The eval runner; the golden tasks live in the private repo |
 | `wiki/` | How home works, the catalog of extras |
+| `backlog/` | Home's own follow-ups. Tag `needs-owner` when a task waits on the owner |
 
 ## Rules
 

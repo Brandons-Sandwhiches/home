@@ -10,8 +10,8 @@ Usage:
 --tag   the sign-off tag(s) (default: $HOME_SIGNOFF_TAG or needs-owner)
 --print also print the summary as text (what "what's up" reads)
 
-A project is a folder under --root with backlog/ or AGENTS.md. home,
-home-private, work, archive and dot-folders are skipped. A project whose
+A project is a folder under --root with backlog/ or AGENTS.md, home and
+work included. archive and dot-folders are skipped. A project whose
 .agents/space says `work` or `client` shows only its needs-you count and
 titles, never its content. Read-only except for the --out file.
 """
@@ -27,7 +27,7 @@ from collections import defaultdict
 from pathlib import Path
 
 HOME = Path(__file__).resolve().parent.parent
-SKIP = {"home", "work", "archive"}
+SKIP = {"archive"}
 PRIORITY = {"high": 0, "medium": 1, "low": 2}
 PARKED_DAYS = 30
 TEXT = {".md", ".py", ".js", ".ts", ".json", ".yml", ".yaml", ".toml", ".txt", ".html", ".css", ".sh", ".ps1"}
