@@ -11,6 +11,7 @@ Every wiki page, one line each, grouped by first tag. Rules: the `wiki` skill's 
 ### catalog
 
 - [Catalog](catalog.md#catalog): every extra, what it does, when you'd want it, how to switch it on.
+- [Zoom maps](zoom-maps.md#zoom-maps): saved maps of a project at five zoom levels, and how they compare to other code-search tools.
 
 ### tools
 
