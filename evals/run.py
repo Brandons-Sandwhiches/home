@@ -45,7 +45,7 @@ DEFAULT_TOOLS = {
                        "--permission-mode", "acceptEdits", "--allowedTools", "Bash Read Write Edit Glob Grep"]},
     # Codex always loads user-level skills, so each run gets a throwaway CODEX_HOME holding only a
     # link (never a copy) to the login file; it is deleted right after the run.
-    "codex": {"cmd": ["codex", "exec", "--json", "--skip-git-repo-check", "--full-auto", "-"],
+    "codex": {"cmd": ["codex", "exec", "--json", "--skip-git-repo-check", "--sandbox", "workspace-write", "-"],
               "temp_home": {"env": "CODEX_HOME", "link": ["~/.codex/auth.json"]}},
     "opencode": {"cmd": ["opencode", "run", "--format", "json", "{prompt}"]},
 }
@@ -171,7 +171,8 @@ def command(tools, tool, prompt, model=None):
         temp = Path(tempfile.mkdtemp(prefix=f"eval-{tool}-home-"))
         for src in cfg["temp_home"].get("link", []):
             src = Path(os.path.expanduser(src))
-            os.symlink(src, temp / src.name)  # a link, never a copy; fails loudly without Developer Mode
+            if src.exists():  # a link, never a copy; fails loudly without Developer Mode
+                os.symlink(src, temp / src.name, target_is_directory=src.is_dir())
         env[cfg["temp_home"]["env"]] = str(temp)
     return cmd, env, temp
 
@@ -247,6 +248,20 @@ def kill_tree(p):
         p.kill()
 
 
+def drop_temp_home(temp):
+    """Remove the links first, so a failed cleanup never leaves the login file reachable."""
+    for entry in temp.iterdir():
+        if entry.is_symlink():
+            entry.unlink() if not entry.is_dir() else os.rmdir(entry) if os.name == "nt" else entry.unlink()
+    for _ in range(5):  # Codex can hold plugin cache files open for a moment after exit
+        try:
+            rmtree(temp)
+            return
+        except OSError:
+            time.sleep(2)
+    print(f"warning: could not remove {temp} (links already removed)")
+
+
 def rmtree(path):
     def unlock(func, target, _):
         if os.path.islink(target):  # never touch what a link points at (the login file)
@@ -262,7 +277,7 @@ def run_one(task, tool, arm, tools, tasks_dir, timeout_min=15, keep=False, dry=F
     cmd, env, temp_home = command(tools, tool, task["prompt"].strip(), model)
     if dry:
         if temp_home:
-            rmtree(temp_home)
+            drop_temp_home(temp_home)
         print(f"[dry] {task['id']} {tool} {arm['name']}: {ws}\n      {' '.join(cmd[:3])} ...")
         rmtree(root)
         return None
@@ -277,7 +292,7 @@ def run_one(task, tool, arm, tools, tasks_dir, timeout_min=15, keep=False, dry=F
         kill_tree(p)
         raw, code = p.communicate()[0] or "", "timeout"
     if temp_home:
-        rmtree(temp_home)
+        drop_temp_home(temp_home)
     minutes = round((time.time() - start) / 60, 2)
     skills = set(home_skills(HOME)) | set(home_skills(arm.get("home")))
     final, tokens, cost, fired = parse_output(raw, skills)
