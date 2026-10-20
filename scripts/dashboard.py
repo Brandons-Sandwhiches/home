@@ -39,7 +39,11 @@ def frontmatter(text):
         return {}
     end = text.find("\n---", 4)
     fields, key = {}, None
-    for line in text[4:end].splitlines():
+    lines = text[4:end].splitlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        i += 1
         item = re.match(r"^\s+-\s+(.*)$", line)
         if item and key and isinstance(fields.get(key), list):
             fields[key].append(item.group(1).strip().strip("'\""))
@@ -48,7 +52,14 @@ def frontmatter(text):
         if not m:
             continue
         key, value = m.group(1), m.group(2).strip()
-        if value.startswith("[") and value.endswith("]"):
+        if re.fullmatch(r"[>|][+-]?", value):  # folded or literal block: join the indented lines
+            parts = []
+            while i < len(lines) and (not lines[i].strip() or lines[i][0] in " \t"):
+                if lines[i].strip():
+                    parts.append(lines[i].strip())
+                i += 1
+            fields[key] = " ".join(parts)
+        elif value.startswith("[") and value.endswith("]"):
             fields[key] = [v.strip().strip("'\"") for v in value[1:-1].split(",") if v.strip()]
         else:
             fields[key] = value.strip("'\"") if value else []
@@ -81,7 +92,9 @@ def read_tasks(project):
         if not fm:
             continue
         notes = re.search(r"## Implementation Notes\s*\n(.*?)(?:\n## |\Z)", text, re.S)
-        fm["note"] = notes.group(1).strip().splitlines()[-1].strip() if notes and notes.group(1).strip() else ""
+        body = re.sub(r"<!--.*?-->", "", notes.group(1), flags=re.S) if notes else ""  # Backlog.md section markers
+        lines = [ln.strip() for ln in body.splitlines() if ln.strip()]
+        fm["note"] = lines[-1] if lines else ""
         fm["when"] = str(fm.get("updated_date") or fm.get("created_date") or "")
         fm["path"] = path
         tasks.append(fm)
