@@ -39,10 +39,11 @@ HOME = Path(__file__).resolve().parent.parent
 PROMPTFOO = "promptfoo@0.123.1"  # pinned; bump on purpose, never "latest"
 DEFAULT_TOOLS = {
     # No "{prompt}" in cmd means the prompt goes on stdin (safe with Windows .cmd shims).
+    # User-level settings, skills and MCP are left out so the "off" arm is clean.
     "claude": {"cmd": ["claude", "-p", "--output-format", "stream-json", "--verbose",
-                       "--dangerously-skip-permissions"]},
-    "codex": {"cmd": ["codex", "exec", "--json", "--skip-git-repo-check",
-                      "--dangerously-bypass-approvals-and-sandbox", "-"]},
+                       "--setting-sources", "project,local", "--strict-mcp-config",
+                       "--permission-mode", "acceptEdits", "--allowedTools", "Bash Read Write Edit Glob Grep"]},
+    "codex": {"cmd": ["codex", "exec", "--json", "--skip-git-repo-check", "--full-auto", "-"]},
     "opencode": {"cmd": ["opencode", "run", "--format", "json", "{prompt}"]},
 }
 
@@ -348,13 +349,14 @@ def get_assert(output, context):
 
 def run_promptfoo(tasks, arms, args, out_dir, tasks_path):
     import yaml
-    providers = [{"id": f"file://{Path(__file__).resolve()}", "label": f"{tool} | {arm['name']}",
+    me = "file://" + os.path.relpath(Path(__file__).resolve(), out_dir).replace("\\", "/")  # Windows: no drive letter
+    providers = [{"id": me, "label": f"{tool} | {arm['name']}",
                   "config": {"tool": tool, "arm": arm, "tasks": str(tasks_path), "runs": str(out_dir / "runs.jsonl"),
                              "ledger": str(out_dir / "ledger.txt"), "max_usd": args.max_usd, "keep": args.keep,
                              "model": args.model}}
                  for tool in args.tools.split(",") for arm in arms]
     tests = [{"description": t["id"], "vars": {"task_id": t["id"], "prompt": t["prompt"]},
-              "assert": [{"type": "python", "value": f"file://{Path(__file__).resolve()}"}]} for t in tasks]
+              "assert": [{"type": "python", "value": me}]} for t in tasks]
     config = out_dir / "promptfooconfig.yaml"
     config.write_text(yaml.safe_dump({"description": out_dir.name, "prompts": ["{{prompt}}"],
                                       "providers": providers, "tests": tests}), encoding="utf-8")

@@ -10,7 +10,7 @@ python evals/run.py <golden-tasks.yaml> --base main --change add   # a home PR, 
 python evals/run.py <golden-tasks.yaml> --sweep           # all of home on vs off (weekly, or after a model update)
 ```
 
-Each task runs 3 times per arm, per tool, in a fresh temp copy of its fixture. promptfoo (pinned in `run.py`, run through npx) drives the runs and scores them; `--engine native` does the same without node. Paste `summary.md` into the PR's "How it was checked".
+Needs Python with PyYAML. Each task runs 3 times per arm, per tool, in a fresh temp copy of its fixture. promptfoo (pinned in `run.py`, run through npx) drives the runs and scores them; `--engine native` does the same without node. Paste `summary.md` into the PR's "How it was checked".
 
 ## The gate
 
