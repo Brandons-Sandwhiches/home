@@ -1,0 +1,3 @@
+interface:
+  display_name: "Discovery interview"
+  short_description: "Breadth-first interview in five passes"

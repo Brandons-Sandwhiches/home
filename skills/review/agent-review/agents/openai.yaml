@@ -1,0 +1,3 @@
+interface:
+  display_name: "Agent review"
+  short_description: "Check agent work at the level the stakes require"
