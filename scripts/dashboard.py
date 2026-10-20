@@ -27,7 +27,7 @@ from collections import defaultdict
 from pathlib import Path
 
 HOME = Path(__file__).resolve().parent.parent
-SKIP = {"home", "home-private", "work", "archive"}
+SKIP = {"home", "work", "archive"}
 PRIORITY = {"high": 0, "medium": 1, "low": 2}
 PARKED_DAYS = 30
 TEXT = {".md", ".py", ".js", ".ts", ".json", ".yml", ".yaml", ".toml", ".txt", ".html", ".css", ".sh", ".ps1"}
