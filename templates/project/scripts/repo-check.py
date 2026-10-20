@@ -13,7 +13,6 @@ Exits non-zero on any failure. Paste the whole output into the PR or the
 reply. This file is a copy from home's project template and doesn't update
 itself.
 """
-import os
 import shutil
 import subprocess
 import sys
@@ -72,7 +71,7 @@ def main():
             print("== wiki lint: skipped, home's wiki skill not found on this machine")
 
     check_file = ROOT / ".agents" / "check-command"
-    command = check_file.read_text(encoding="utf-8").strip() if check_file.exists() else ""
+    command = check_file.read_text(encoding="utf-8-sig").strip() if check_file.exists() else ""
     if command:
         results.append(run("project check", command, shell=True))
     else:
@@ -84,5 +83,6 @@ def main():
 
 
 if __name__ == "__main__":
-    os.environ.setdefault("PYTHONUTF8", "1")
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     main()
