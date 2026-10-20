@@ -34,13 +34,24 @@ Five zoom levels. The script saves levels 2 and 3 as files. The agent builds lev
 | **Code-intelligence servers** (Serena, Sourcegraph/SCIP) | Exact "who calls this" and "go to definition" across a whole repo | Setup, a server per language, heavy for small projects | Good second step. Serena runs locally as an MCP server, so it stays tool-neutral. Catalog it separately |
 | **Packers** (Repomix, code2prompt) | One file to paste a whole repo into a chat | Dumps everything, burns the context window | Fine for one-off pastes, wrong for daily agent work |
 | **Hosted tools** (Sourcegraph Cody, Greptile, Augment, DeepWiki-style generated wikis) | No setup, strong search on big repos | Your code leaves the machine, vendor lock-in, a monthly bill, and some work in one app only | Doesn't fit "client spaces never cross" or the tool-neutral rule without a per-project check |
+| **Obsidian + plugins** (Dataview, Smart Connections) | Graph and backlinks for a human; Dataview queries tags and frontmatter; Smart Connections searches by meaning with local embeddings | A viewer for people, not a map agents read; embeddings go stale like any index; defaults to `[[wikilinks]]` | Already a catalog item. If used: set markdown links, gitignore `.obsidian/` |
 | **Agent search alone** (grep, glob) | Already built in, zero setup | Wastes reads on big repos; does not know what it hasn't looked at | Baseline. The maps give it a starting point instead of replacing it |
 
 Details above come from general knowledge of these tools, not a fresh test of each. Re-check before relying on one.
 
+## Ready-made map generators (instead of our own script)
+
+Read from their READMEs on 2026-10-20; not run by us.
+
+| Tool | Covers | Gaps |
+| --- | --- | --- |
+| [codemap](https://github.com/kcosr/codemap) (MIT) | Files, symbols and markdown headings in one map; `--budget` shrinks it to a token limit | No Python symbols; C++ declarations only; call queries work for TS/JS only |
+| [RepoMapper](https://github.com/pdavis68/RepoMapper) (MIT) | Aider's repo map as CLI or MCP server (tree-sitter, ranks files by references); Python, JS, C++ and more | No markdown; last changelog July 2025; written mostly with AI help |
+| universal-ctags | All our languages plus markdown headings; one binary | Plain list, no ranking or token budget |
+
 ## Recommendation
 
-1. Start with zoom maps. Cheapest, and files in git are the only form every tool shares.
+1. Start with zoom maps on ctags. Cheapest, and files in git are the only form every tool shares. Try RepoMapper against it in the eval before writing a custom script.
 2. Add Serena (or similar) only when a repo has real call-graph questions.
 3. Skip embeddings and hosted tools until maps plus search measurably fail.
 
