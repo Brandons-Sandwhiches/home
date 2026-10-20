@@ -34,3 +34,25 @@ Every tool checks a fixed folder in the user's home on every launch, whatever pr
 ```
 
 A project's own `.claude/skills` or `.agents/skills` adds skills for that project only. Every path per tool: [scopes](concepts/scopes.md#where-each-lives).
+
+## Protect main on GitHub
+
+Apply this ruleset once, when you create a repo on GitHub. In the repo, open Settings, then Rules, then Rulesets, then a new branch ruleset.
+
+| Setting | Value |
+| --- | --- |
+| Ruleset name | `protect main` |
+| Enforcement status | Active |
+| Bypass list | Empty, so a tool with the owner's login cannot rewrite main either. To change main in an emergency, switch the rule off for a minute. |
+| Target branches | Add target, then include the default branch |
+| Restrict deletions | On. Nobody can delete main. |
+| Block force pushes | On. No history rewrites on main. |
+| Require linear history | On. It matches squash merges. |
+
+Leave these off, each for one reason:
+
+- **Require a pull request:** it would block backlog and wiki commits, which go straight to main.
+- **Require status checks:** the repo has no CI yet. Turn it on after you decide on CI.
+- **Signed commits:** agents cannot sign without key setup on every machine.
+- **Restrict creations or updates, deployments, code scanning, quality and coverage:** they do not fit a solo repo.
+- **Copilot code review:** it costs credits, and the review agents do this job.

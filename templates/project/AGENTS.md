@@ -38,6 +38,7 @@ Add a row for each code or media folder this project adds.
 - Code: Conventional Commits. Wiki: `<move> | <subject>`.
 - Code and rule changes go on a branch (`<type>/<short-name>`) and through a PR using `.github/pull_request_template.md`. The owner's yes merges.
 - `backlog/`, `wiki/`, `raw/` and `archive/` commit straight to main.
+- A new GitHub repo gets the `protect main` ruleset from home's wiki (`how-a-project-works.md#protect-main-on-github`).
 
 ## Knowledge
 
