@@ -1,0 +1,5 @@
+#!/bin/sh
+# Commit gate: the same checks as repo-check (gitleaks, AGENTS.md cap, wiki lint, STE prose,
+# project check). Skip once with: git commit --no-verify
+PY=$(command -v python3 || command -v python)
+exec "$PY" scripts/repo-check.py

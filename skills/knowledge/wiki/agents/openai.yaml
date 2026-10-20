@@ -1,0 +1,3 @@
+interface:
+  display_name: "Wiki"
+  short_description: "Drop, ingest, ask and tidy the project wiki"
