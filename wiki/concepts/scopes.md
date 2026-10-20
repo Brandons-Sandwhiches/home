@@ -1,6 +1,6 @@
 ---
 title: User space and project space
-tags: [harness, install]
+tags: [tools, install]
 sources:
   - https://code.claude.com/docs/en/memory
   - https://code.claude.com/docs/en/skills
@@ -11,7 +11,7 @@ updated: 2026-10-20
 
 # User space and project space
 
-Every tool reads agent context from a **user space** in your home folder (all projects) and a **project space** in the repo (this project only). skillshare is the one tool that writes links into user space; nothing is copied there by hand. There is no plugin or marketplace route, so each skill is listed once.
+Every tool reads agent context from a **user space** in your home folder (all projects) and a **project space** in the repo (this project only). skillshare is the one tool that writes links into user space; nobody copies files there by hand. There is no plugin or marketplace route, so each skill shows up once.
 
 ## Where each lives
 
@@ -29,6 +29,6 @@ Every tool reads agent context from a **user space** in your home folder (all pr
 - On Windows, skillshare `target remove` turns links into copies. Don't use it.
 - On Windows, a rules file links live only with Developer Mode on; use `mklink`, since PowerShell 5.1 `New-Item -ItemType SymbolicLink` still wants admin. A link that turned into a copy must fail the link check loudly.
 - Where a skill exists at user and project level, Claude Code prefers the user copy and Codex lists both.
-- Upstream skills are pinned to a commit, so an update is a reviewed bump, not a live change.
+- skillshare pins upstream skills to a commit, so an update is a reviewed bump, not a live change.
 
 See [how a project works](../how-a-project-works.md#in-words).

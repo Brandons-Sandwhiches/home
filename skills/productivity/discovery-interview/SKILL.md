@@ -5,7 +5,7 @@ description: Interview the user in breadth-first passes to shape a plan, project
 
 # Discovery interview
 
-Breadth-first discovery with progressive deepening: establish the big picture, then keep returning with more specific questions. Taxonomy (what kinds of things exist) and ontology (what they are, their properties and how they relate) organize what comes out; the passes decide how deep to go.
+Breadth-first discovery with progressive deepening: establish the big picture, then keep returning with more specific questions. Taxonomy (what kinds of things exist) and ontology (what they are, their properties and how they relate) organize the results. The passes decide how deep to go.
 
 ## The five passes
 
@@ -20,7 +20,7 @@ Breadth-first discovery with progressive deepening: establish the big picture, t
 ## How to run it
 
 1. Finish one pass before starting the next. Within a pass, ask broad before narrow.
-2. Ask at most about ten questions per round. Make each answerable in a word or a line, give options where the space is known, and mark your recommendation.
+2. Ask at most about ten questions per round. Make each answerable in a word or a line, give options where you know the space, and mark your recommendation.
 3. Bring ideas, not only questions: where the user is unsure or asks for options, offer two or three concrete ones with the trade-off of each.
 4. Research before asking about anything the web or the repo can answer; ask only what only the user knows.
 5. After each round, save the answers verbatim or condensed to `raw/YYYY-MM-DD-interview-pass-N.md` and say which pass comes next.

@@ -1,6 +1,6 @@
 ## What changed and why
 
-## How it was checked
+## How we checked it
 
 Paste the output of `python scripts/repo-check.py` (and the eval delta, for rule or skill changes).
 

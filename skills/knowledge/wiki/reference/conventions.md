@@ -40,17 +40,17 @@ ratified: 2026-10-20         # optional; only the owner sets it
 
 - `ratified:` marks a page canon. Only the owner adds it. Agents never set, change or remove it.
 - A `sources` path that does not exist is a lint error.
-- A page whose sources changed in git after its `updated:` date is flagged stale.
+- Lint flags a page as stale when its sources changed in git after its `updated:` date.
 
 ## Size and archive
 
 - A page stays at 300 lines or fewer. Split it by heading, or move old sections to `archive/`.
-- `archive/` mirrors the project's paths (`archive/raw/...`, `archive/wiki/log-2026.md`). Tidy moves things there; nothing is deleted.
+- `archive/` mirrors the project's paths (`archive/raw/...`, `archive/wiki/log-2026.md`). Tidy moves things there and never deletes them.
 - `AGENTS.md` stays at 60 lines or fewer.
 
 ## Links
 
-- Link at heading level: `[size rules](conventions.md#size-and-archive)`. Link a bare file only when the whole page is meant.
+- Link at heading level: `[size rules](conventions.md#size-and-archive)`. Link a bare file only when you mean the whole page.
 - Slugs are GitHub style: lowercase, spaces to hyphens, punctuation other than `-` and `_` dropped.
 - Every page is in [the index](#index-and-log) and links to or from at least one other page.
 - Relative paths only, so links work in every tool and on GitHub.

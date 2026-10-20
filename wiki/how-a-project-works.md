@@ -15,7 +15,7 @@ updated: 2026-10-20
 - **The private repo** holds the owner's user rules (tone, autonomy, session start and end, the sign-off tag), the golden eval tasks and the decision record.
 - **skillshare** links the skills and the user rules into every tool, so Claude Code, Codex and opencode behave the same. Details: [scopes](concepts/scopes.md#where-each-lives).
 - **A project** is a copy of `templates/project/`: AGENTS.md (the map and habits), `backlog/`, `raw/` into `wiki/`, and `archive/`.
-- **Each session** starts with where things left off and the next 3 tasks, does one task, and ends by updating the backlog, tagging what needs the owner, logging skill use and rebuilding the dashboard.
+- **Each session** starts with where things left off and the next 3 tasks, then does one task. It ends by updating the backlog, tagging what needs the owner, logging skill use and rebuilding the dashboard.
 - **The work folder** is the front door. "What's up" in any tool, or `dashboard.html`, shows Needs you, Active and Parked across every project. More extras: [catalog](catalog.md#catalog).
 
 ## Where the tools look

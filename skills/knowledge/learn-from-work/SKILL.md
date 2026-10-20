@@ -5,7 +5,7 @@ description: Turn a correction or a hard-won fix into a lesson in the project wi
 
 # Learn from work
 
-A correction should only have to be made once. Lessons live in this project's wiki; they never move to another project.
+The user should only have to correct something once. Lessons live in this project's wiki; they never move to another project.
 
 ## When the user corrects you
 
@@ -32,7 +32,7 @@ A correction should only have to be made once. Lessons live in this project's wi
 
 4. Add it to `wiki/index.md` under `### lesson`, log `## [YYYY-MM-DD] lesson | <slug>`, commit with the same subject, and say in one line that you saved it.
 
-Keep it at the narrowest scope: this project. A user-wide rule only when the user asks, or when the home base reports the same lesson slug in three projects; then propose the rule and wait for a yes.
+Keep it at the narrowest scope: this project. Go user-wide only when the user asks, or when the home base reports the same lesson slug in three projects. Then propose the rule and wait for a yes.
 
 ## Before you start work
 

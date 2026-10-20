@@ -15,10 +15,10 @@ ECRS is the lean improvement sequence: **Eliminate, Combine, Rearrange, Simplify
 
 ## 2. Ask the four questions of every element, in order
 
-1. **Eliminate.** Would the goal still be met without it? Waiting, duplicate checks, rework loops, steps that only feed another removable step, and outputs nobody reads are the usual candidates.
+1. **Eliminate.** Would we still reach the goal without it? Waiting, duplicate checks, rework loops, steps that only feed another removable step, and outputs nobody reads are the usual candidates.
 2. **Combine.** Does it do the same job, touch the same files, or need the same inputs as another element? Merge them so the work happens once.
 3. **Rearrange.** Would a different order, owner, or timing remove waiting, rework, or risk? Move checks earlier, move blockers off the critical path, and do the riskiest unknown first.
-4. **Simplify.** For what is left, what is the simplest form that works: fewer options, a default instead of a choice, a convention instead of a tool.
+4. **Simplify.** For what remains, what is the simplest form that works: fewer options, a default instead of a choice, a convention instead of a tool.
 
 Stop at the first question that changes the element. Never eliminate safety controls, data-loss protection, or anything the user explicitly asked for.
 

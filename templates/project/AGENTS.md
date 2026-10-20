@@ -14,7 +14,7 @@ One paragraph: what it makes, for whom, and what done looks like. Replace this l
 | `backlog/` | Tasks (Backlog.md): To Do, In Progress, Done. Requirements and plan live in the task. Never run `backlog init` here; if a tool must, use `--agent-instructions none` |
 | `raw/` | Sources, added as `YYYY-MM-DD-slug.ext`, never edited |
 | `wiki/` | What we know: pages, `index.md`, `log.md`. Lessons are pages tagged `lesson` |
-| `archive/` | Old raw files, log years and cut sections. Nothing is deleted |
+| `archive/` | Old raw files, log years and cut sections. We archive, never delete |
 | `scripts/repo-check.py` | gitleaks on new commits, then this project's own check |
 
 Add a row for each code or media folder this project adds.
