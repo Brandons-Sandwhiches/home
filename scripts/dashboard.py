@@ -131,7 +131,8 @@ def summarize(project, tags):
     tasks = read_tasks(project)
     space = (project / ".agents" / "space").read_text(encoding="utf-8").strip().lower() \
         if (project / ".agents" / "space").exists() else ""
-    last_commit = git(project, "log", "-1", "--format=%cs %s")
+    own_repo = Path(git(project, "rev-parse", "--show-toplevel") or "/nonexistent").resolve() == project.resolve()
+    last_commit = git(project, "log", "-1", "--format=%cs %s") if own_repo else ""
     dates = [t["when"][:10] for t in tasks if t["when"]] + ([last_commit[:10]] if last_commit else [])
     last = max(dates) if dates else ""
     if not last:
@@ -141,12 +142,13 @@ def summarize(project, tags):
     doing = [t for t in tasks if t.get("status") == "In Progress"]
     recent = sorted(doing or tasks, key=lambda t: (t["when"], task_num(t)))[-1] if tasks else None
     needs = [t for t in tasks if t.get("status") != "Done" and set(as_list(t.get("labels"))) & tags]
-    lessons = [p.stem for p in (project / "wiki" / "lessons").glob("*.md")]
-    files, lines, skills = counts(project)
-    return {"name": project.name, "path": project, "restricted": space in ("work", "client"),
+    restricted = space in ("work", "client")
+    lessons = [] if restricted else [p.stem for p in (project / "wiki" / "lessons").glob("*.md")]
+    files, lines, skills = (0, 0, 0) if restricted else counts(project)
+    return {"name": project.name, "path": project, "restricted": restricted,
             "has_backlog": (project / "backlog").is_dir(), "tasks": tasks, "recent": recent,
             "last_commit": last_commit, "last": last, "idle": idle, "next": next_tasks(tasks),
-            "needs": needs, "lessons": lessons, "stale": stale_pages(project),
+            "needs": needs, "lessons": lessons, "stale": [] if restricted else stale_pages(project),
             "files": files, "lines": lines, "skills": skills}
 
 
@@ -219,7 +221,8 @@ def render(projects, home_skills, stats, sweep, tags):
                     f"<p><b>Left off:</b> {e(left)}</p><ol>{nxt}</ol></section>")
     rows.append(f"<h2>Parked <span class=n>{len(parked)}</span></h2><ul>")
     for p in sorted(parked, key=lambda p: -p["idle"]):
-        rows.append(f"<li>{link(p['path'], p['name'])} <span class=m>idle {p['idle']} days. Archive it?</span></li>")
+        rows.append(f"<li>{link(p['path'], p['name'])} · {link(p['path'] / 'backlog', 'backlog')} · "
+                    f"{link(p['path'] / 'wiki' / 'index.md', 'wiki')} <span class=m>idle {p['idle']} days. Archive it?</span></li>")
     rows.append("</ul>")
     restricted = [p for p in projects if p["restricted"]]
     if restricted:
@@ -260,6 +263,8 @@ table{{border-collapse:collapse}} td,th{{border:1px solid var(--line);padding:4p
 
 
 def main():
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--root", type=Path, default=HOME.parent)
     ap.add_argument("--out", type=Path)

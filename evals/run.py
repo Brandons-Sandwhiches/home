@@ -38,10 +38,11 @@ from pathlib import Path
 HOME = Path(__file__).resolve().parent.parent
 PROMPTFOO = "promptfoo@0.123.1"  # pinned; bump on purpose, never "latest"
 DEFAULT_TOOLS = {
-    "claude": {"cmd": ["claude", "-p", "{prompt}", "--output-format", "stream-json", "--verbose",
+    # No "{prompt}" in cmd means the prompt goes on stdin (safe with Windows .cmd shims).
+    "claude": {"cmd": ["claude", "-p", "--output-format", "stream-json", "--verbose",
                        "--dangerously-skip-permissions"]},
     "codex": {"cmd": ["codex", "exec", "--json", "--skip-git-repo-check",
-                      "--dangerously-bypass-approvals-and-sandbox", "{prompt}"]},
+                      "--dangerously-bypass-approvals-and-sandbox", "-"]},
     "opencode": {"cmd": ["opencode", "run", "--format", "json", "{prompt}"]},
 }
 
@@ -220,10 +221,25 @@ def check(task, ws, final):
         if f.exists() and len(f.read_text(encoding="utf-8").splitlines()) > cap:
             fails.append(f"{p} over {cap} lines")
     if c.get("run"):
-        r = subprocess.run(c["run"], cwd=ws, shell=True, capture_output=True, text=True)
+        r = subprocess.run(c["run"], cwd=ws, shell=True, capture_output=True, text=True, encoding="utf-8",
+                           errors="replace")
         if r.returncode != 0:
             fails.append(f"run failed: {(r.stdout + r.stderr)[-200:]}")
     return not fails, fails
+
+
+def kill_tree(p):
+    if os.name == "nt":  # a .cmd shim's node child survives p.kill()
+        subprocess.run(["taskkill", "/T", "/F", "/PID", str(p.pid)], capture_output=True)
+    else:
+        p.kill()
+
+
+def rmtree(path):
+    def unlock(func, target, _):
+        os.chmod(target, 0o700)
+        func(target)
+    shutil.rmtree(path, onerror=unlock)
 
 
 def run_one(task, tool, arm, tools, tasks_dir, timeout_min=15, keep=False, dry=False, model=None):
@@ -231,15 +247,18 @@ def run_one(task, tool, arm, tools, tasks_dir, timeout_min=15, keep=False, dry=F
     cmd, env = command(tools, tool, task["prompt"].strip(), model)
     if dry:
         print(f"[dry] {task['id']} {tool} {arm['name']}: {ws}\n      {' '.join(cmd[:3])} ...")
-        shutil.rmtree(root, ignore_errors=True)
+        rmtree(root)
         return None
     start = time.time()
+    on_stdin = "{prompt}" not in " ".join(tools[tool]["cmd"])
+    p = subprocess.Popen(cmd, cwd=ws, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT, text=True, encoding="utf-8", errors="replace")
     try:
-        p = subprocess.run(cmd, cwd=ws, env=env, capture_output=True, text=True, encoding="utf-8",
-                           errors="replace", timeout=timeout_min * 60, stdin=subprocess.DEVNULL)
-        raw, code = p.stdout + "\n" + p.stderr, p.returncode
-    except subprocess.TimeoutExpired as e:
-        raw, code = (e.stdout or "") if isinstance(e.stdout, str) else "", "timeout"
+        raw, _ = p.communicate(task["prompt"].strip() if on_stdin else "", timeout=timeout_min * 60)
+        code = p.returncode
+    except subprocess.TimeoutExpired:
+        kill_tree(p)
+        raw, code = p.communicate()[0] or "", "timeout"
     minutes = round((time.time() - start) / 60, 2)
     skills = set(home_skills(HOME)) | set(home_skills(arm.get("home")))
     final, tokens, cost, fired = parse_output(raw, skills)
@@ -251,7 +270,7 @@ def run_one(task, tool, arm, tools, tasks_dir, timeout_min=15, keep=False, dry=F
     if keep:
         result["workspace"] = str(root)
     else:
-        shutil.rmtree(root, ignore_errors=True)
+        rmtree(root)
     return result
 
 
@@ -355,7 +374,7 @@ def main():
     mode.add_argument("--sweep", action="store_true")
     ap.add_argument("--tools", default="claude,codex")
     ap.add_argument("--runs", type=int, default=3)
-    ap.add_argument("--change", choices=["add", "remove", "wording"], default="add")
+    ap.add_argument("--change", choices=["add", "remove", "wording"])
     ap.add_argument("--tags")
     ap.add_argument("--holdout", action="store_true")
     ap.add_argument("--user-rules", type=Path)
@@ -365,6 +384,8 @@ def main():
     ap.add_argument("--keep", action="store_true")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
+    if args.base and not args.change:
+        ap.error("--base needs --change add|remove|wording")
     tasks_path = args.tasks.resolve()
     if args.user_rules is None:
         default = HOME.parent / "home-private" / "user" / "AGENTS.md"
