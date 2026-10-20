@@ -1,0 +1,3 @@
+# Paths the STE prose check skips (prefix match). raw/ and archive/ are always skipped.
+# Vendored from upstream; we don't rewrite it.
+skills/review/agent-review/

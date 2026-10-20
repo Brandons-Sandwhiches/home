@@ -11,10 +11,11 @@ The one source of agent rules for this repo, in every tool. `CLAUDE.md` and `GEM
 | Path | What lives there |
 | --- | --- |
 | `skills/<bucket>/<skill>/` | Skills: `SKILL.md`, `agents/openai.yaml`, and any `scripts/` or `reference/` |
-| `templates/project/` | What a new project gets: AGENTS.md, raw/, wiki/, backlog/, archive/, repo-check, PR template |
+| `templates/project/` | What a new project gets: AGENTS.md, raw/, wiki/, backlog/, archive/, repo-check, commit gate, PR template |
 | `templates/work/` | The home base folder's AGENTS.md |
 | `scripts/dashboard.py` | "What's up" and `work/dashboard.html`, read from every backlog |
-| `scripts/repo-lint.py`, `scripts/repo-check.py` | This repo's checks |
+| `scripts/repo-lint.py`, `scripts/repo-check.py` | This repo's checks. Git runs repo-check before every commit |
+| `scripts/prose-score.mjs`, `scripts/prose-check.mjs` | The STE prose scorer and its commit gate |
 | `evals/run.py` | The eval runner; the golden tasks live in the private repo |
 | `wiki/` | How home works, the catalog of extras |
 
