@@ -44,9 +44,12 @@ DEFAULT_TOOLS = {
                        "--setting-sources", "project,local", "--strict-mcp-config",
                        "--permission-mode", "acceptEdits", "--allowedTools", "Bash Read Write Edit Glob Grep"]},
     # Codex always loads user-level skills, so each run gets a throwaway CODEX_HOME holding only a
-    # link (never a copy) to the login file; it is deleted right after the run.
-    "codex": {"cmd": ["codex", "exec", "--json", "--skip-git-repo-check", "--sandbox", "workspace-write", "-"],
-              "temp_home": {"env": "CODEX_HOME", "link": ["~/.codex/auth.json"]}},
+    # link (never a copy) to the login file; it is deleted right after the run. On Windows it also
+    # links the existing sandbox setup, so the elevated sandbox works without a new admin step.
+    "codex": {"cmd": ["codex", "exec", "--json", "--skip-git-repo-check", "--sandbox", "workspace-write"]
+                     + (["-c", 'windows.sandbox="elevated"'] if os.name == "nt" else []) + ["-"],
+              "temp_home": {"env": "CODEX_HOME", "link": ["~/.codex/auth.json", "~/.codex/.sandbox",
+                                                          "~/.codex/.sandbox-bin", "~/.codex/.sandbox-secrets"]}},
     "opencode": {"cmd": ["opencode", "run", "--format", "json", "{prompt}"]},
 }
 
