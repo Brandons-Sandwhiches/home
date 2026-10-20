@@ -35,4 +35,4 @@ Everything that isn't in the basics. Switch an item on in one project; it moves 
 | herdr | A terminal cockpit for many agents | Several agents at once on Linux or WSL | Install herdr in WSL |
 | Session backup | Copies each tool's session folders to a backup drive on a schedule | Old sessions matter | A scheduled copy job |
 | Session-to-wiki | Mines old sessions for wiki pages | Knowledge is stuck in old chats | Try an existing tool (for example llm-wiki) on one project |
-| Zoom maps | A script saves a one-line-per-folder project map and a file-to-function map, so an agent finds things without reading whole files. [Details](zoom-maps.md#zoom-maps) | A project past about 30 files, or an agent that keeps opening the wrong file | Copy a `repo-map` script, install `universal-ctags`, add one line to AGENTS.md |
+| Zoom maps (idea, not built) | Generated maps of folders, functions and headings, so an agent finds things without reading whole files. [Details](zoom-maps.md#zoom-maps) | An agent keeps opening the wrong file, or a repo passes roughly 30 files (a guess) | Install universal-ctags 6 or newer, add a small script (not written yet) and one AGENTS.md line |
