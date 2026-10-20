@@ -31,6 +31,7 @@ Add a row for each code or media folder this project adds.
 - Interview and write a spec only for multi-file or uncertain work; a one-sentence change skips the plan.
 - Anything waiting on the owner gets the sign-off tag on its backlog task (`needs-owner`, unless the user rules name another).
 - Knowledge stays in this project. Never copy content in from, or out to, another project.
+- Git is the source of truth. Cloud shared files are drafts only; move anything worth keeping into the repo.
 
 ## Commits and pull requests
 
