@@ -43,7 +43,10 @@ DEFAULT_TOOLS = {
     "claude": {"cmd": ["claude", "-p", "--output-format", "stream-json", "--verbose",
                        "--setting-sources", "project,local", "--strict-mcp-config",
                        "--permission-mode", "acceptEdits", "--allowedTools", "Bash Read Write Edit Glob Grep"]},
-    "codex": {"cmd": ["codex", "exec", "--json", "--skip-git-repo-check", "--full-auto", "-"]},
+    # Codex always loads user-level skills, so each run gets a throwaway CODEX_HOME holding only a
+    # link (never a copy) to the login file; it is deleted right after the run.
+    "codex": {"cmd": ["codex", "exec", "--json", "--skip-git-repo-check", "--full-auto", "-"],
+              "temp_home": {"env": "CODEX_HOME", "link": ["~/.codex/auth.json"]}},
     "opencode": {"cmd": ["opencode", "run", "--format", "json", "{prompt}"]},
 }
 
@@ -162,7 +165,15 @@ def command(tools, tool, prompt, model=None):
     exe = shutil.which(cmd[0])
     if exe:
         cmd[0] = exe
-    return cmd, {**os.environ, **{k: str(v) for k, v in (cfg.get("env") or {}).items()}}
+    env = {**os.environ, **{k: str(v) for k, v in (cfg.get("env") or {}).items()}}
+    temp = None
+    if cfg.get("temp_home"):
+        temp = Path(tempfile.mkdtemp(prefix=f"eval-{tool}-home-"))
+        for src in cfg["temp_home"].get("link", []):
+            src = Path(os.path.expanduser(src))
+            os.symlink(src, temp / src.name)  # a link, never a copy; fails loudly without Developer Mode
+        env[cfg["temp_home"]["env"]] = str(temp)
+    return cmd, env, temp
 
 
 def parse_output(raw, skills):
@@ -238,6 +249,9 @@ def kill_tree(p):
 
 def rmtree(path):
     def unlock(func, target, _):
+        if os.path.islink(target):  # never touch what a link points at (the login file)
+            os.unlink(target)
+            return
         os.chmod(target, 0o700)
         func(target)
     shutil.rmtree(path, onerror=unlock)
@@ -245,8 +259,10 @@ def rmtree(path):
 
 def run_one(task, tool, arm, tools, tasks_dir, timeout_min=15, keep=False, dry=False, model=None):
     root, ws = build_workspace(task, arm, tasks_dir)
-    cmd, env = command(tools, tool, task["prompt"].strip(), model)
+    cmd, env, temp_home = command(tools, tool, task["prompt"].strip(), model)
     if dry:
+        if temp_home:
+            rmtree(temp_home)
         print(f"[dry] {task['id']} {tool} {arm['name']}: {ws}\n      {' '.join(cmd[:3])} ...")
         rmtree(root)
         return None
@@ -260,6 +276,8 @@ def run_one(task, tool, arm, tools, tasks_dir, timeout_min=15, keep=False, dry=F
     except subprocess.TimeoutExpired:
         kill_tree(p)
         raw, code = p.communicate()[0] or "", "timeout"
+    if temp_home:
+        rmtree(temp_home)
     minutes = round((time.time() - start) / 60, 2)
     skills = set(home_skills(HOME)) | set(home_skills(arm.get("home")))
     final, tokens, cost, fired = parse_output(raw, skills)
