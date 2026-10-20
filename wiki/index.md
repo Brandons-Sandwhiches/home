@@ -12,6 +12,6 @@ Every wiki page, one line each, grouped by first tag. Rules: the `wiki` skill's 
 
 - [Catalog](catalog.md#catalog): every extra, what it does, when you'd want it, how to switch it on.
 
-### harness
+### tools
 
 - [User space and project space](concepts/scopes.md#user-space-and-project-space): where each tool reads rules and skills, and the traps.
