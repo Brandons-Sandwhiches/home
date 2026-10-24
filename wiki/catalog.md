@@ -23,6 +23,7 @@ Everything that isn't in the basics. Switch an item on in one project; it moves 
 | Media kit | Prompt and take logs, an audio-reactive three.js starter, render presets | Music and video projects | Copy the kit folder into the project |
 | Ops kit | Runbooks and a change log for servers and containers | Server or homelab projects | Copy the kit folder into the project |
 | Scheduled agents | Runs a prompt on a timer (tidy, sweeps, briefings) | A chore repeats weekly | Use the tool's scheduler or a cron job on an always-on box |
+| Goal and rider briefs | A goal under 4,000 characters for `/goal`, plus a rider with phases and named depth tests | One round of half a day to a day of agent work, in Claude Code or Codex | Copy the goal-writer skill (Apache-2.0) from the private repo's raw draft; run the evals before it moves into `skills/` |
 | ADR folder | One file per big decision in `.agents/adr/` | Decisions need more than a wiki line | Create the folder and a template |
 | MEMORY.md and SOUL.md | Small capped memory and persona files | A tool without its own memory | Add both, capped at one screen; skip in Claude Code (clashes with its auto-memory) |
 | Assistant connectors | Email, calendars, speech in and out for a home assistant | The assistant project starts | Connect each service in its own project space |
