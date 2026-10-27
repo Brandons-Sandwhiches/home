@@ -1,7 +1,7 @@
 ---
 id: TASK-13
 title: Build PR review, CI, branch names and the rulesets how-to
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 15:30'
 updated_date: '2026-10-27 15:30'
