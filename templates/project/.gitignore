@@ -1,0 +1,22 @@
+# Secrets live in the machine environment, never here
+.env
+.env.*
+*.pem
+*.key
+secrets.*
+
+# Tool and OS clutter
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+dist/
+build/
+.DS_Store
+Thumbs.db
+.claude/settings.local.json
+
+# Big media lives outside the repo
+*.mp4
+*.mov
+*.wav

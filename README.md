@@ -1,6 +1,6 @@
 # home
 
-Generic agent tooling every project starts from, the same way in Claude Code, Codex and opencode: a project template (AGENTS.md, wiki, backlog), a few skills that passed their evals, a home base dashboard, and a catalog of extras you can switch on.
+Generic agent tooling every project starts from. It works the same way in Claude Code, Codex and opencode. It holds a project template (AGENTS.md, wiki, backlog), a few skills that passed their evals and a home base dashboard. A catalog lists the extras you can switch on.
 
 Start with [the diagram](wiki/how-a-project-works.md#how-a-project-works). Agents start at [AGENTS.md](AGENTS.md).
 
