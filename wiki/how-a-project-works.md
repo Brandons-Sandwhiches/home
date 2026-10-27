@@ -37,7 +37,11 @@ A project's own `.claude/skills` or `.agents/skills` adds skills for that projec
 
 ## Protect main on GitHub
 
-Set three rulesets once for the whole GitHub org. Every repo then gets them, new repos too. Org rulesets need GitHub Team or Enterprise, and private repos need a paid plan. On a Free plan, set the same rulesets in each repo (Settings, then Rules, then Rulesets).
+Set the rulesets once for the whole GitHub org. Every repo then gets them, new repos too. Plans decide what works:
+- **Org rulesets** need GitHub Team or Enterprise.
+- **Repo rulesets** work on public repos on any plan. Private repos need a paid plan (Pro, Team or Enterprise).
+- **Restrict branch names** may need a higher plan than the other rules. If the form lacks it, skip ruleset 3.
+- A repo under a personal account gets only its own repo rulesets.
 
 Where: the org page, Settings, then Repository (under "Code, planning, and automation"), then Rulesets, then New ruleset, then New branch ruleset. A bypass list applies to a whole ruleset. A single ruleset would let the admin force-push as well, so the rules split.
 
@@ -58,7 +62,7 @@ Where: the org page, Settings, then Repository (under "Code, planning, and autom
 | Setting | Value |
 | --- | --- |
 | Enforcement status | Active |
-| Bypass list | Repository admin, set to "Always allow". The owner and their agents can still commit backlog and wiki straight to main. |
+| Bypass list | Repository admin, set to "Always allow". The owner and their agents can still commit backlog and wiki straight to main. The same bypass lets them push code to main without a PR. We accept that. The PR rule for code is a habit in AGENTS.md, and the gate for the owner is the owner's own yes. |
 | Target repositories | All repositories |
 | Target branches | Add target, then include the default branch |
 | Require a pull request | On, with 1 approval. Anyone else who contributes must open a PR. |
@@ -66,15 +70,21 @@ Where: the org page, Settings, then Repository (under "Code, planning, and autom
 
 ### Ruleset 3: `branch names`
 
+If the form has no "Restrict branch names" rule, skip this ruleset. Then the `repo-check --pre-push` hook is the only name check, and anyone can bypass it with `--no-verify`.
+
 | Setting | Value |
 | --- | --- |
-| Enforcement status | Active |
-| Bypass list | Empty |
+| Enforcement status | Start with Evaluate, check Insights for blocked names, then switch to Active |
+| Bypass list | Empty, except any bot app you use, such as Dependabot |
 | Target repositories | All repositories |
-| Target branches | Add target, include all branches, then exclude the pattern `main` |
-| Restrict branch names | On, "Must match a given regex pattern": `^([a-z][a-z0-9]*-[0-9]+-[a-z0-9-]+|claude/.+)$` |
+| Target branches | Add target, include all branches, then exclude the patterns `main`, `dependabot/**` and `renovate/**` |
+| Restrict branch names | On, "Must match a given regex pattern", with the pattern below |
 
-The pattern checks the shape only. `repo-check --pre-push` checks the exact prefix of each project. If the rule is missing from the form, skip this ruleset. The pre-push check still applies.
+```
+^([a-z][a-z0-9]*-[0-9]+(\.[0-9]+)*-[a-z0-9-]+|claude/.+)$
+```
+
+The pattern checks the shape only. `repo-check --pre-push` checks the exact prefix of each project. The ruleset blocks every other name, including `patch-1` from the web editor. A repo whose default branch is not `main` (for example `master`) needs its own exclusion for that branch.
 
 ### Leave these off
 
@@ -85,6 +95,8 @@ The pattern checks the shape only. `repo-check --pre-push` checks the exact pref
 ### Keep a copy and check it
 
 - Export each ruleset (the ruleset page, the three-dot menu, Export ruleset) and keep the JSON in the org's `.github` repo under `rulesets/`.
-- Test on a throwaway private repo, never on a real one. Push two commits to its main, then try `git push --force origin HEAD~1:main`. GitHub must refuse it.
-- Test the names in the same repo. `git push origin HEAD:bad-name` must fail. `git push origin HEAD:video-1-x` and `HEAD:claude/x` must pass. Delete those branches after.
+- Make the test repo yourself: a new private repo inside the org, with no real work in it. Run `git remote -v` first and check that the URL is the test repo. A personal repo is not covered by the org rulesets, so the test would rewind its main.
+- Push two commits to its main, then run `git push --force origin HEAD~1:main`. GitHub must refuse it with a message that names the ruleset (`GH013`).
+- Test the names in the same repo. The local hook refuses a bad name first, so add `--no-verify` to each push: `git push --no-verify origin HEAD:bad-name` must fail. `git push --no-verify origin HEAD:task-1-x` and `HEAD:claude/x` must pass. A refusal from GitHub names the ruleset (`GH013`); a refusal without that text came from somewhere else. Delete any branch that got through.
 - Check that the admin can still push a backlog or wiki commit straight to main.
+- Delete the test repo when done.

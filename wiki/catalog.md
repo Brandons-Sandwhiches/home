@@ -2,7 +2,7 @@
 title: Catalog
 tags: [catalog, extras]
 sources: [wiki/how-a-project-works.md]
-updated: 2026-10-20
+updated: 2026-10-27
 ---
 
 # Catalog

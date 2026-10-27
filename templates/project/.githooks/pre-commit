@@ -2,4 +2,8 @@
 # Commit gate: the same checks as repo-check (gitleaks, AGENTS.md cap, wiki lint, STE prose,
 # project check). Skip once with: git commit --no-verify
 PY=$(command -v python3 || command -v python)
+if [ -z "$PY" ] || ! "$PY" -c '' >/dev/null 2>&1; then
+  echo "repo-check: Python 3 not found. Install it, or commit with --no-verify." >&2
+  exit 1
+fi
 exec "$PY" scripts/repo-check.py

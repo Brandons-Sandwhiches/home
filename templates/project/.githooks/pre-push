@@ -1,5 +1,14 @@
 #!/bin/sh
-# Push gate: refuses a branch name that does not carry the backlog prefix.
+# Push gate: refuses a new branch name that does not carry the backlog prefix.
+# Chains Git LFS when it is installed, because this file takes the LFS hook's place.
 # Skip once with: git push --no-verify
 PY=$(command -v python3 || command -v python)
-exec "$PY" scripts/repo-check.py --pre-push
+if [ -z "$PY" ] || ! "$PY" -c '' >/dev/null 2>&1; then
+  echo "repo-check: Python 3 not found. Install it, or push with --no-verify." >&2
+  exit 1
+fi
+input=$(cat)
+if command -v git-lfs >/dev/null 2>&1; then
+  printf '%s\n' "$input" | git lfs pre-push "$@" || exit $?
+fi
+printf '%s\n' "$input" | "$PY" scripts/repo-check.py --pre-push

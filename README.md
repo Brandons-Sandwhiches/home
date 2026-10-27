@@ -8,7 +8,7 @@ Start with [the diagram](wiki/how-a-project-works.md#how-a-project-works). Agent
 
 1. Clone this repo into your workspaces folder as `home`, next to your projects.
 2. Link the skills into each tool with [skillshare](https://github.com/runkids/skillshare).
-3. Start a project: copy `templates/project/` into a new folder. Before the first task, set `project_name` and `task_prefix` in `backlog/config.yml` (the prefix is letters only and cannot change later). Then fill in "What this project is".
+3. Start a project: copy `templates/project/` into a new folder and run `git init -b main`. Before the first task, set `project_name` and `task_prefix` in `backlog/config.yml` (the prefix is letters only and cannot change later; tested with Backlog.md 1.55.3). Then fill in "What this project is".
 4. Make a `work` folder from `templates/work/` and ask any tool there "what's up".
 
 ## Skills

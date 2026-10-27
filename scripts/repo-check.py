@@ -16,9 +16,9 @@ It also turns on the commit gate: git runs this file before every commit
 (.githooks/pre-commit). Skip it once with `git commit --no-verify`.
 
 With --pre-push it only checks branch names, from the refs git sends on stdin.
-A branch must be <prefix>-<number>-<short-slug>, in lowercase letters, digits
-and hyphens. The prefix is task_prefix in backlog/config.yml (else the folder
-name). `main` and `claude/*` are allowed.
+A new branch must be <prefix>-<number>-<short-slug>, in lowercase letters, digits
+and hyphens. Branches that already exist on the remote pass. The prefix is task_prefix in backlog/config.yml (else `task`, the
+Backlog.md default). `main` and `claude/*` are allowed.
 
 Exits non-zero on any failure. Paste the whole output into the PR or the
 reply. This file is a copy from home's project template and doesn't update
@@ -81,20 +81,22 @@ def prose_files():
 def backlog_prefix():
     config = ROOT / "backlog" / "config.yml"
     if config.exists():
-        found = re.search(r"^task_prefix:\s*[\"']?([A-Za-z]+)", config.read_text(encoding="utf-8-sig"), re.M)
+        found = re.search(r"^task_prefix:\s*[\"']?([A-Za-z]+)[\"']?\s*$", config.read_text(encoding="utf-8-sig"), re.M)
         if found:
             return found.group(1).lower()
-    return re.sub("[^a-z]", "", ROOT.name.lower()) or "task"
+    return "task"
 
 
 def pre_push():
     prefix = backlog_prefix()
-    rule = re.compile(rf"^{prefix}-[0-9]+-[a-z0-9-]+$")
+    rule = re.compile(rf"^{prefix}-[0-9]+(\.[0-9]+)*-[a-z0-9-]+$")
     bad = []
     for line in sys.stdin.read().splitlines():
         parts = line.split()
         if len(parts) < 4 or not parts[2].startswith("refs/heads/") or set(parts[1]) == {"0"}:
-            continue
+            continue  # not a branch, or a delete
+        if set(parts[3]) != {"0"}:
+            continue  # the branch already exists on the remote, so only new names are checked
         name = parts[2][len("refs/heads/"):]
         if name != "main" and not name.startswith("claude/") and not rule.match(name):
             bad.append(name)
