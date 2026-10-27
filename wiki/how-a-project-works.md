@@ -2,7 +2,7 @@
 title: How a project works
 tags: [overview, diagram]
 sources: [wiki/how-a-project-works.svg, templates/project/AGENTS.md, scripts/dashboard.py]
-updated: 2026-10-20
+updated: 2026-10-27
 ---
 
 # How a project works
@@ -37,22 +37,54 @@ A project's own `.claude/skills` or `.agents/skills` adds skills for that projec
 
 ## Protect main on GitHub
 
-Apply this ruleset once, when you create a repo on GitHub. In the repo, open Settings, then Rules, then Rulesets, then a new branch ruleset.
+Set three rulesets once for the whole GitHub org. Every repo then gets them, new repos too. Org rulesets need GitHub Team or Enterprise, and private repos need a paid plan. On a Free plan, set the same rulesets in each repo (Settings, then Rules, then Rulesets).
+
+Where: the org page, Settings, then Repository (under "Code, planning, and automation"), then Rulesets, then New ruleset, then New branch ruleset. A bypass list applies to a whole ruleset. A single ruleset would let the admin force-push as well, so the rules split.
+
+### Ruleset 1: `protect main`
 
 | Setting | Value |
 | --- | --- |
-| Ruleset name | `protect main` |
 | Enforcement status | Active |
 | Bypass list | Empty, so a tool with the owner's login cannot rewrite main either. To change main in an emergency, switch the rule off for a minute. |
+| Target repositories | All repositories |
 | Target branches | Add target, then include the default branch |
 | Restrict deletions | On. Nobody can delete main. |
 | Block force pushes | On. No history rewrites on main. |
 | Require linear history | On. It matches squash merges. |
 
-Leave these off, each for one reason:
+### Ruleset 2: `PRs for others`
 
-- **Require a pull request:** it would block backlog and wiki commits, which go straight to main.
-- **Require status checks:** the repo has no CI yet. Turn it on after you decide on CI.
+| Setting | Value |
+| --- | --- |
+| Enforcement status | Active |
+| Bypass list | Repository admin, set to "Always allow". The owner and their agents can still commit backlog and wiki straight to main. |
+| Target repositories | All repositories |
+| Target branches | Add target, then include the default branch |
+| Require a pull request | On, with 1 approval. Anyone else who contributes must open a PR. |
+| Require status checks | Add `gitleaks` and `lint`. Turn this on only when every covered repo has the CI workflow, or its PRs wait for ever. |
+
+### Ruleset 3: `branch names`
+
+| Setting | Value |
+| --- | --- |
+| Enforcement status | Active |
+| Bypass list | Empty |
+| Target repositories | All repositories |
+| Target branches | Add target, include all branches, then exclude the pattern `main` |
+| Restrict branch names | On, "Must match a given regex pattern": `^([a-z][a-z0-9]*-[0-9]+-[a-z0-9-]+|claude/.+)$` |
+
+The pattern checks the shape only. `repo-check --pre-push` checks the exact prefix of each project. If the rule is missing from the form, skip this ruleset. The pre-push check still applies.
+
+### Leave these off
+
 - **Signed commits:** agents cannot sign without key setup on every machine.
 - **Restrict creations or updates, deployments, code scanning, quality and coverage:** they do not fit a solo repo.
 - **Copilot code review:** it costs credits, and the review agents do this job.
+
+### Keep a copy and check it
+
+- Export each ruleset (the ruleset page, the three-dot menu, Export ruleset) and keep the JSON in the org's `.github` repo under `rulesets/`.
+- Test on a throwaway private repo, never on a real one. Push two commits to its main, then try `git push --force origin HEAD~1:main`. GitHub must refuse it.
+- Test the names in the same repo. `git push origin HEAD:bad-name` must fail. `git push origin HEAD:video-1-x` and `HEAD:claude/x` must pass. Delete those branches after.
+- Check that the admin can still push a backlog or wiki commit straight to main.

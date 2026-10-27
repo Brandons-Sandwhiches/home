@@ -30,10 +30,10 @@ The one source of agent rules for this repo, in every tool. `CLAUDE.md` and `GEM
 
 ## Changing home
 
-- Home is live: tools load the clone in the workspaces folder. Never edit that clone. Work in a separate worktree on a branch, and open a PR. The owner's yes merges (squash); the live clone only pulls.
+- Home is live: tools load the clone in the workspaces folder. Never edit that clone. Work in a separate worktree on a branch (`task-<number>-<short-slug>`, or `claude/*`), and open a PR. The owner's yes merges (squash); the live clone only pulls.
 - Every change to a skill or rule re-runs its tagged golden tasks on main vs the branch: `python evals/run.py <golden-tasks.yaml> --base main`. Paste the delta into the PR. Additions need a clear win, removals no regression, wording-only no drop.
 - Cheap models may draft a skill; a top model reviews only the diff and the eval results.
-- Run an ECRS cut pass (`ecrs-review`) on code and rule PRs before merge.
+- Run an ECRS cut pass (`ecrs-review`) on code and rule PRs before merge. Mark the PR ready only after that, then run the review in the template's rules and fill the PR's Review line.
 
 ## Before you call it done
 

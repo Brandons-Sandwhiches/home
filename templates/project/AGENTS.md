@@ -36,9 +36,11 @@ Add a row for each code or media folder this project adds.
 ## Commits and pull requests
 
 - Code: Conventional Commits. Wiki: `<move> | <subject>`.
-- Code and rule changes go on a branch (`<type>/<short-name>`) and through a PR using `.github/pull_request_template.md`. The owner's yes merges.
+- Code and rule changes go on a branch and through a PR using `.github/pull_request_template.md`. The owner's yes merges.
+- Branch names are `<prefix>-<number>-<short-slug>`, lowercase, for example `video-12-short-slug`. The prefix is `task_prefix` in `backlog/config.yml`; the number is the backlog task. `repo-check` refuses other names before a push. `main` and `claude/*` are exempt.
+- Review a PR when it is ready. A small change gets a quick check. Rules, skills, scripts and anything outgoing get a full Opus-high plus Sonnet-high red team. Attach the report, put the verdict in the PR's Review line, then ask the owner to merge.
 - `backlog/`, `wiki/`, `raw/` and `archive/` commit straight to main.
-- A new GitHub repo gets the `protect main` ruleset from home's wiki (`how-a-project-works.md#protect-main-on-github`).
+- A new GitHub repo gets the main rulesets from home's wiki (`how-a-project-works.md#protect-main-on-github`).
 
 ## Knowledge
 

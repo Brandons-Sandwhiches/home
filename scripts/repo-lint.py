@@ -79,9 +79,11 @@ def main():
         readme = skill.parent / "README.md"
         if not readme.exists() or f"]({skill.name}/SKILL.md)" not in readme.read_text(encoding="utf-8"):
             errors.append(f"{rel}: not listed in {skill.parent.name}/README.md")
-    a, b = ROOT / "scripts" / "repo-check.py", ROOT / "templates" / "project" / "scripts" / "repo-check.py"
-    if not a.exists() or not b.exists() or a.read_bytes() != b.read_bytes():
-        errors.append("scripts/repo-check.py and templates/project/scripts/repo-check.py differ")
+    for rel in ("scripts/repo-check.py", ".githooks/pre-commit", ".githooks/pre-push",
+                ".github/workflows/ci.yml", ".github/pull_request_template.md"):
+        a, b = ROOT / rel, ROOT / "templates" / "project" / rel
+        if not a.exists() or not b.exists() or a.read_bytes() != b.read_bytes():
+            errors.append(f"{rel} and templates/project/{rel} differ")
     for line in errors:
         print(f"error {line}")
     print(f"{len(errors)} errors")

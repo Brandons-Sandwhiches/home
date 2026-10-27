@@ -2,6 +2,7 @@
 """Run before calling work done: gitleaks on new commits, then the project's own check.
 
 Usage: python scripts/repo-check.py
+       python scripts/repo-check.py --pre-push   (git runs this before a push)
 
 1. gitleaks scans commits not yet on any remote, plus uncommitted changes.
    Missing gitleaks is a failure, not a skip.
@@ -14,10 +15,16 @@ Usage: python scripts/repo-check.py
 It also turns on the commit gate: git runs this file before every commit
 (.githooks/pre-commit). Skip it once with `git commit --no-verify`.
 
+With --pre-push it only checks branch names, from the refs git sends on stdin.
+A branch must be <prefix>-<number>-<short-slug>, in lowercase letters, digits
+and hyphens. The prefix is task_prefix in backlog/config.yml (else the folder
+name). `main` and `claude/*` are allowed.
+
 Exits non-zero on any failure. Paste the whole output into the PR or the
 reply. This file is a copy from home's project template and doesn't update
 itself.
 """
+import re
 import shutil
 import subprocess
 import sys
@@ -69,6 +76,33 @@ def prose_files():
         skip += [l.strip() for l in ignore_file.read_text(encoding="utf-8-sig").splitlines()
                  if l.strip() and not l.startswith("#")]
     return [p for p in listed.split("\0") if p and (ROOT / p).is_file() and not any(p.startswith(s) for s in skip)]
+
+
+def backlog_prefix():
+    config = ROOT / "backlog" / "config.yml"
+    if config.exists():
+        found = re.search(r"^task_prefix:\s*[\"']?([A-Za-z]+)", config.read_text(encoding="utf-8-sig"), re.M)
+        if found:
+            return found.group(1).lower()
+    return re.sub("[^a-z]", "", ROOT.name.lower()) or "task"
+
+
+def pre_push():
+    prefix = backlog_prefix()
+    rule = re.compile(rf"^{prefix}-[0-9]+-[a-z0-9-]+$")
+    bad = []
+    for line in sys.stdin.read().splitlines():
+        parts = line.split()
+        if len(parts) < 4 or not parts[2].startswith("refs/heads/") or set(parts[1]) == {"0"}:
+            continue
+        name = parts[2][len("refs/heads/"):]
+        if name != "main" and not name.startswith("claude/") and not rule.match(name):
+            bad.append(name)
+    for name in bad:
+        print(f"repo-check: branch '{name}' refused. Name it {prefix}-<number>-<short-slug>, "
+              f"for example {prefix}-12-short-slug. The number is the backlog task. "
+              "'main' and 'claude/*' are allowed.")
+    sys.exit(1 if bad else 0)
 
 
 def commit_gate():
@@ -132,4 +166,6 @@ def main():
 if __name__ == "__main__":
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    if "--pre-push" in sys.argv:
+        pre_push()
     main()

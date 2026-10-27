@@ -1,0 +1,5 @@
+#!/bin/sh
+# Push gate: refuses a branch name that does not carry the backlog prefix.
+# Skip once with: git push --no-verify
+PY=$(command -v python3 || command -v python)
+exec "$PY" scripts/repo-check.py --pre-push
