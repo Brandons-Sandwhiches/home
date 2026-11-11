@@ -22,6 +22,8 @@ PERSONAL = ["bran" + "don", "black" + "box", "jah" + "nel", "at" + "las", "bct" 
             "c:\\" + "users", "h:" + "\\"]
 LADDER = ["eleva" + "tion", "pro" + "mote"]
 SKIP_DIRS = {".git", "node_modules", "__pycache__", "results"}
+# What skillshare installs from other repos: not ours to lint, and ignored by git.
+UPSTREAM = ("skills/upstream/", "skills/.metadata.json")
 
 
 def frontmatter(text):
@@ -31,7 +33,8 @@ def frontmatter(text):
 
 def files():
     for path in ROOT.rglob("*"):
-        if path.is_file() and not SKIP_DIRS & set(path.relative_to(ROOT).parts):
+        rel = path.relative_to(ROOT)
+        if path.is_file() and not SKIP_DIRS & set(rel.parts) and not rel.as_posix().startswith(UPSTREAM):
             yield path
 
 
@@ -64,6 +67,8 @@ def main():
     for skill_md in sorted((ROOT / "skills").glob("*/*/SKILL.md")):
         skill = skill_md.parent
         rel = skill.relative_to(ROOT).as_posix()
+        if rel.startswith(UPSTREAM):
+            continue
         fm = frontmatter(skill_md.read_text(encoding="utf-8"))
         if not fm or fm.get("name") != skill.name or not fm.get("description"):
             errors.append(f"{rel}: SKILL.md needs name: {skill.name} and a description")
