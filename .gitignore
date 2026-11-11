@@ -10,3 +10,6 @@ node_modules/
 Thumbs.db
 evals/results/
 .claude/settings.local.json
+# Upstream skills that skillshare installs. Each user pins their own.
+skills/upstream/
+skills/.metadata.json
