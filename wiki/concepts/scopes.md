@@ -6,7 +6,7 @@ sources:
   - https://code.claude.com/docs/en/skills
   - https://developers.openai.com/codex/guides/agents-md
   - https://opencode.ai/docs/skills
-updated: 2026-10-20
+updated: 2026-11-12
 ---
 
 # User space and project space
@@ -30,5 +30,9 @@ Every tool reads agent context from a **user space** in your home folder (all pr
 - On Windows, a rules file links live only with Developer Mode on; use `mklink`, since PowerShell 5.1 `New-Item -ItemType SymbolicLink` still wants admin. A link that turned into a copy must fail the link check loudly.
 - Where a skill exists at user and project level, Claude Code prefers the user copy and Codex lists both.
 - skillshare pins upstream skills to a commit, so an update is a reviewed bump, not a live change.
+
+## Chat apps
+
+Chat apps (ChatGPT, the Gemini web app) read neither space: no AGENTS.md, no skills. Don't try to sync them. Rules go out as one generated paste, and anything worth keeping comes back through raw/ and the wiki skill. App memory stays scratch. Both steps are in the [catalog](../catalog.md#items) as Chat profile and Chat export ingest.
 
 See [how a project works](../how-a-project-works.md#in-words).
